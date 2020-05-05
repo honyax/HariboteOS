@@ -16,27 +16,31 @@ default :
 ipl.bin : ipl.nas Makefile
 	$(NASK) ipl.nas ipl.bin ipl.lst
 
-honya.img : ipl.bin Makefile
+honyaos.sys : honyaos.nas Makefile
+	$(NASK) honyaos.nas honyaos.sys honyaos.lst
+
+honyaos.img : ipl.bin honyaos.sys Makefile
 	$(EDIMG)    imgin:../z_tools/fdimg0at.tek \
-		wbinimg src:ipl.bin len:512 from:0 to:0   imgout:honya.img
+		wbinimg src:ipl.bin len:512 from:0 to:0 \
+		copy from:honyaos.sys to:@: \
+		imgout:honyaos.img
 
 # コマンド
 
-asm :
-	$(MAKE) ipl.bin
-
 img :
-	$(MAKE) honya.img
+	$(MAKE) honyaos.img
 
 run :
 	$(MAKE) img
-	$(COPY) honya.img ..\z_tools\qemu\fdimage0.bin
+	$(COPY) honyaos.img ..\z_tools\qemu\fdimage0.bin
 	$(MAKE) -C ../z_tools/qemu
 
 clean :
 	-$(DEL) ipl.bin
 	-$(DEL) ipl.lst
+	-$(DEL) honyaos.sys
+	-$(DEL) honyaos.lst
 
 src_only :
 	$(MAKE) clean
-	-$(DEL) honya.img
+	-$(DEL) honyaos.img

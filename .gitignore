@@ -1,3 +1,5 @@
 *.img
 ipl.lst
 ipl.bin
+honyaos.sys
+honyaos.lst
