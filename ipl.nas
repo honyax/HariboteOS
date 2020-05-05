@@ -78,11 +78,8 @@ next:
 		CMP		CH, CYLS		; CH（シリンダ）とCYLSを比較
 		JB		readloop		; CH < CYLS だったらreadloopへ
 
-; 読み終わったけどとりあえずやることないので寝る
-
-fin:
-		HLT						; 何かあるまでCPUを停止
-		JMP		fin				; 無限ループ
+; 読み終わったのでharibote.sysを実行
+		JMP		0xc200
 
 error:
 		MOV		SI, msg
@@ -97,6 +94,10 @@ putloop:
 		INT		0x10			; ビデオBIOS呼び出し
 		JMP		putloop
 
+fin:
+		HLT						; 何かあるまでCPUを停止
+		JMP		fin				; 無限ループ
+
 msg:
 		DB		0x0a, 0x0a		; 改行を2つ
 		DB		"load error"
@@ -107,9 +108,3 @@ msg:
 
 		DB		0x55, 0xaa
 
-; 以下はブートセクタ以外の部分の記述
-;
-;		DB		0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00
-;		RESB	4600
-;		DB		0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00
-;		RESB	1469432
