@@ -1,5 +1,7 @@
-; honya-os
+; honyaos-ipl
 ; TAB=4
+
+CYLS	EQU		10				; どこまで読み込むか
 
 		ORG		0x7c00			; 0x7c00にプログラムを読み込む
 
@@ -67,6 +69,14 @@ next:
 		ADD		CL, 1			; CL（セクタ）に1加算
 		CMP		CL, 18			; CL（セクタ）と18を比較
 		JBE		readloop		; CL <= 18 だったらreadloopへ
+		MOV		CL, 1			; CL（セクタ）を1に初期化
+		ADD		DH, 1			; DH（ヘッド）に1加算
+		CMP		DH, 2			; DH（ヘッド）と2を比較
+		JB		readloop		; DH < 2 だったらreadloopへ
+		MOV		DH, 0			; DH（ヘッド）を0に初期化
+		ADD		CH, 1			; CH（シリンダ）に1加算
+		CMP		CH, CYLS		; CH（シリンダ）とCYLSを比較
+		JB		readloop		; CH < CYLS だったらreadloopへ
 
 ; 読み終わったけどとりあえずやることないので寝る
 
