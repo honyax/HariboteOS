@@ -1,5 +1,10 @@
-*.img
-ipl.lst
-ipl.bin
+*.bin
+*.bim
+*.gas
+*.hrb
+*.lst
+*.obj
+*.map
 honyaos.sys
-honyaos.lst
+honyaos.img
+bootpack.nas
