@@ -1,31 +1,58 @@
-ÔªøTOOLPATH = ../z_tools/
+TOOLPATH = ../z_tools/
+INCPATH  = ../z_tools/haribote/
+
 MAKE     = $(TOOLPATH)make.exe -r
 NASK     = $(TOOLPATH)nask.exe
+CC1      = $(TOOLPATH)cc1.exe -I$(INCPATH) -Os -Wall -quiet
+GAS2NASK = $(TOOLPATH)gas2nask.exe -a
+OBJ2BIM  = $(TOOLPATH)obj2bim.exe
+BIM2HRB  = $(TOOLPATH)bim2hrb.exe
+RULEFILE = $(TOOLPATH)haribote/haribote.rul
 EDIMG    = $(TOOLPATH)edimg.exe
 IMGTOL   = $(TOOLPATH)imgtol.com
 COPY     = copy
 DEL      = del
 
-# „Éá„Éï„Ç©„É´„ÉàÂãï‰Ωú
+# ÉfÉtÉHÉãÉgìÆçÏ
 
 default :
 	$(MAKE) img
 
-# „Éï„Ç°„Ç§„É´ÁîüÊàêË¶èÂâá
+# ÉtÉ@ÉCÉãê∂ê¨ãKë•
 
-ipl10.bin : ipl10.nas Makefile
+ipl10.bin		: ipl10.nas Makefile
 	$(NASK) ipl10.nas ipl10.bin ipl10.lst
 
-honyaos.sys : honyaos.nas Makefile
-	$(NASK) honyaos.nas honyaos.sys honyaos.lst
+asmhead.bin		: asmhead.nas Makefile
+	$(NASK) asmhead.nas asmhead.bin asmhead.lst
+
+bootpack.gas	: bootpack.c Makefile
+	$(CC1) -o bootpack.gas bootpack.c
+
+bootpack.nas	: bootpack.gas Makefile
+	$(GAS2NASK) bootpack.gas bootpack.nas
+
+bootpack.obj	: bootpack.nas Makefile
+	$(NASK) bootpack.nas bootpack.obj bootpack.lst
+
+bootpack.bim	: bootpack.obj Makefile
+	$(OBJ2BIM) @$(RULEFILE) out:bootpack.bim stack:3136k map:bootpack.map \
+		bootpack.obj
+# 3MB + 64KB = 3136KB
+
+bootpack.hrb	: bootpack.bim Makefile
+	$(BIM2HRB) bootpack.bim bootpack.hrb 0
+
+honyaos.sys		: asmhead.bin bootpack.hrb Makefile
+	copy /B asmhead.bin+bootpack.hrb honyaos.sys
 
 honyaos.img : ipl10.bin honyaos.sys Makefile
-	$(EDIMG)    imgin:../z_tools/fdimg0at.tek \
+	$(EDIMG) imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:ipl10.bin len:512 from:0 to:0 \
 		copy from:honyaos.sys to:@: \
 		imgout:honyaos.img
 
-# „Ç≥„Éû„É≥„Éâ
+# ÉRÉ}ÉìÉh
 
 img :
 	$(MAKE) honyaos.img
@@ -36,10 +63,15 @@ run :
 	$(MAKE) -C ../z_tools/qemu
 
 clean :
-	-$(DEL) ipl10.bin
-	-$(DEL) ipl10.lst
+	-$(DEL) *.bin
+	-$(DEL) *.lst
+	-$(DEL) *.gas
+	-$(DEL) *.obj
+	-$(DEL) bootpack.nas
+	-$(DEL) bootpack.map
+	-$(DEL) bootpack.bim
+	-$(DEL) bootpack.hrb
 	-$(DEL) honyaos.sys
-	-$(DEL) honyaos.lst
 
 src_only :
 	$(MAKE) clean
