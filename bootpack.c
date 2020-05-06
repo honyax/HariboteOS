@@ -27,15 +27,28 @@ void boxfill8(unsigned char *vram, int xsize, unsigned char c, int x0, int y0, i
 
 void HariMain(void)
 {
-	int i;
-	char *p = (char*)0xa0000;
+	char *vram = (char*)0xa0000;
+	int xsize = 320;
+	int ysize = 200;
 	
 	init_palette();
 	
-	boxfill8(p, 320, COL8_C6C6C6,   0,   0, 320, 200);
-	boxfill8(p, 320, COL8_FF0000,  20,  20, 120, 120);
-	boxfill8(p, 320, COL8_00FF00,  70,  50, 170, 150);
-	boxfill8(p, 320, COL8_0000FF, 120,  80, 220, 180);
+	boxfill8(vram, xsize, COL8_008484,          0,          0, xsize -  1, ysize - 29);
+	boxfill8(vram, xsize, COL8_C6C6C6,          0, ysize - 28, xsize -  1, ysize - 28);
+	boxfill8(vram, xsize, COL8_FFFFFF,          0, ysize - 27, xsize -  1, ysize - 27);
+	boxfill8(vram, xsize, COL8_C6C6C6,          0, ysize - 26, xsize -  1, ysize -  1);
+	
+	boxfill8(vram, xsize, COL8_FFFFFF,          3, ysize - 24,         59, ysize - 24);
+	boxfill8(vram, xsize, COL8_FFFFFF,          2, ysize - 24,          2, ysize -  4);
+	boxfill8(vram, xsize, COL8_848484,          3, ysize -  4,         59, ysize -  4);
+	boxfill8(vram, xsize, COL8_848484,         59, ysize - 23,         59, ysize -  5);
+	boxfill8(vram, xsize, COL8_000000,          2, ysize -  3,         59, ysize -  3);
+	boxfill8(vram, xsize, COL8_000000,         60, ysize - 24,         60, ysize -  3);
+	
+	boxfill8(vram, xsize, COL8_848484, xsize - 47, ysize - 24, xsize -  4, ysize - 24);
+	boxfill8(vram, xsize, COL8_848484, xsize - 47, ysize - 23, xsize - 47, ysize -  4);
+	boxfill8(vram, xsize, COL8_FFFFFF, xsize - 47, ysize -  3, xsize -  4, ysize -  3);
+	boxfill8(vram, xsize, COL8_FFFFFF, xsize -  3, ysize - 24, xsize -  3, ysize -  3);
 	
 	for (;;) {
 		io_hlt();
@@ -60,7 +73,7 @@ void init_palette(void)
 		0x00, 0x00, 0x84,	/* 12:暗い青 */
 		0x84, 0x00, 0x84,	/* 13:暗い紫 */
 		0x00, 0x84, 0x84,	/* 14:暗い水色 */
-		0x84, 0x84, 0x84,	/* 15:暗い灰色 */
+		0x84, 0x84, 0x84	/* 15:暗い灰色 */
 	};
 	set_palette(0, 15, table_rgb);
 	return;
@@ -72,7 +85,7 @@ void set_palette(int start, int end, unsigned char *rgb)
 	eflags = io_load_eflags();	/* 割り込み許可フラグの値を記録する */
 	io_cli();					/* 許可フラグを0にして割り込み禁止にする */
 	io_out8(0x03c8, start);
-	for (i = start; i < end; i++) {
+	for (i = start; i <= end; i++) {
 		io_out8(0x03c9, rgb[0] / 4);
 		io_out8(0x03c9, rgb[1] / 4);
 		io_out8(0x03c9, rgb[2] / 4);
