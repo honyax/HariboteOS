@@ -75,7 +75,4 @@ clean :
 	-$(DEL) bootpack.bim
 	-$(DEL) bootpack.hrb
 	-$(DEL) honyaos.sys
-
-src_only :
-	$(MAKE) clean
 	-$(DEL) honyaos.img
