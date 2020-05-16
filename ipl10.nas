@@ -1,85 +1,85 @@
 ; honyaos-ipl
 ; TAB=4
 
-CYLS	EQU		10				; �ǂ��܂œǂݍ��ނ�
+CYLS	EQU		10				; どこまで読み込むか
 
-		ORG		0x7c00			; 0x7c00�Ƀv���O������ǂݍ���
+		ORG		0x7c00			; 0x7c00にプログラムを読み込む
 
-; �ȉ��͕W���I��FAT12�t�H�[�}�b�g�t���b�s�[�f�B�X�N�̂��߂̋L�q
+; 以下は標準的なFAT12フォーマットフロッピーディスクのための記述
 
 		JMP		entry
 		DB		0x90
-		DB		"HONYAIPL"		; �u�[�g�Z�N�^�̖��O�����R�ɏ����Ă悢�i8�o�C�g�j
-		DW		512				; 1�Z�N�^�̑傫���i512�ɂ��Ȃ���΂����Ȃ��j
-		DB		1				; �N���X�^�̑傫���i1�Z�N�^�ɂ��Ȃ���΂����Ȃ��j
-		DW		1				; FAT���ǂ�����n�܂邩�i���ʂ�1�Z�N�^�ڂ���ɂ���j
-		DB		2				; FAT�̌��i2�ɂ��Ȃ���΂����Ȃ��j
-		DW		224				; ���[�g�f�B���N�g���̈�̑傫���i���ʂ�224�G���g���ɂ���j
-		DW		2880			; ���̃h���C�u�̑傫���i2880�Z�N�^�ɂ��Ȃ���΂����Ȃ��j
-		DB		0xf0			; ���f�B�A�̃^�C�v�i0xf0�ɂ��Ȃ���΂����Ȃ��j
-		DW		9				; FAT�̈�̒����i9�Z�N�^�ɂ��Ȃ���΂����Ȃ��j
-		DW		18				; 1�g���b�N�ɂ����̃Z�N�^�����邩�i18�ɂ��Ȃ���΂����Ȃ��j
-		DW		2				; �w�b�h�̐��i2�ɂ��Ȃ���΂����Ȃ��j
-		DD		0				; �p�[�e�B�V�������g���ĂȂ��̂ł����͕K��0
-		DD		2880			; ���̃h���C�u�傫����������x����
-		DB		0,0,0x29		; �悭�킩��Ȃ����ǂ��̒l�ɂ��Ă����Ƃ����炵��
-		DD		0xffffffff		; ���Ԃ�{�����[���V���A���ԍ�
-		DB		"HONYA-OS   "	; �f�B�X�N�̖��O�i11�o�C�g�j
-		DB		"FAT12   "		; �t�H�[�}�b�g�̖��O�i8�o�C�g�j
-		RESB	18				; �Ƃ肠����18�o�C�g�����Ă���
+		DB		"HONYAIPL"		; ブートセクタの名前を自由に書いてよい（8バイト）
+		DW		512				; 1セクタの大きさ（512にしなければいけない）
+		DB		1				; クラスタの大きさ（1セクタにしなければいけない）
+		DW		1				; FATがどこから始まるか（普通は1セクタ目からにする）
+		DB		2				; FATの個数（2にしなければいけない）
+		DW		224				; ルートディレクトリ領域の大きさ（普通は224エントリにする）
+		DW		2880			; このドライブの大きさ（2880セクタにしなければいけない）
+		DB		0xf0			; メディアのタイプ（0xf0にしなければいけない）
+		DW		9				; FAT領域の長さ（9セクタにしなければいけない）
+		DW		18				; 1トラックにいくつのセクタがあるか（18にしなければいけない）
+		DW		2				; ヘッドの数（2にしなければいけない）
+		DD		0				; パーティションを使ってないのでここは必ず0
+		DD		2880			; このドライブ大きさをもう一度書く
+		DB		0,0,0x29		; よくわからないけどこの値にしておくといいらしい
+		DD		0xffffffff		; たぶんボリュームシリアル番号
+		DB		"HONYA-OS   "	; ディスクの名前（11バイト）
+		DB		"FAT12   "		; フォーマットの名前（8バイト）
+		RESB	18				; とりあえず18バイトあけておく
 
-; �v���O�����{��
+; プログラム本体
 
 entry:
-		MOV		AX, 0			; ���W�X�^������
+		MOV		AX, 0			; レジスタ初期化
 		MOV		SS, AX
 		MOV		SP, 0x7c00
 		MOV		DS, AX
 
-; �f�B�X�N��ǂ�
+; ディスクを読む
 
 		MOV		AX, 0x0820
 		MOV		ES, AX
-		MOV		CH, 0			; �V�����_0
-		MOV		DH, 0			; �w�b�h0
-		MOV		CL, 2			; �Z�N�^2
+		MOV		CH, 0			; シリンダ0
+		MOV		DH, 0			; ヘッド0
+		MOV		CL, 2			; セクタ2
 
 readloop:
-		MOV		SI, 0			; ���s�񐔂𐔂��郌�W�X�^
+		MOV		SI, 0			; 失敗回数を数えるレジスタ
 
 retry:
-		MOV		AH, 0x02		; AH=0x02 : �f�B�X�N�ǂݍ���
-		MOV		AL, 1			; 1�Z�N�^
+		MOV		AH, 0x02		; AH=0x02 : ディスク読み込み
+		MOV		AL, 1			; 1セクタ
 		MOV		BX, 0
-		MOV		DL, 0x00		; A�h���C�u
-		INT		0x13			; �f�B�X�NBIOS�Ăяo��
-		JNC		next			; �G���[���N���Ȃ����next��
-		ADD		SI, 1			; SI��1�𑫂�
-		CMP		SI, 5			; SI��5�Ɣ�r
-		JAE		error			; SI >= 5 ��������error��
+		MOV		DL, 0x00		; Aドライブ
+		INT		0x13			; ディスクBIOS呼び出し
+		JNC		next			; エラーが起きなければnextへ
+		ADD		SI, 1			; SIに1を足す
+		CMP		SI, 5			; SIを5と比較
+		JAE		error			; SI >= 5 だったらerrorへ
 		MOV		AH, 0x00
-		MOV		DL, 0x00		; A�h���C�u
-		INT		0x13			; �h���C�u�̃��Z�b�g
+		MOV		DL, 0x00		; Aドライブ
+		INT		0x13			; ドライブのリセット
 		JMP		retry
 
 next:
-		MOV		AX, ES			; �A�h���X��0x200�i�߂�
+		MOV		AX, ES			; アドレスを0x200進める
 		ADD		AX, 0x20
-		MOV		ES, AX			; ADD ES, 0x20 �Ƃ������߂������̂ł������Ă���
-		ADD		CL, 1			; CL�i�Z�N�^�j��1���Z
-		CMP		CL, 18			; CL�i�Z�N�^�j��18���r
-		JBE		readloop		; CL <= 18 ��������readloop��
-		MOV		CL, 1			; CL�i�Z�N�^�j��1�ɏ�����
-		ADD		DH, 1			; DH�i�w�b�h�j��1���Z
-		CMP		DH, 2			; DH�i�w�b�h�j��2���r
-		JB		readloop		; DH < 2 ��������readloop��
-		MOV		DH, 0			; DH�i�w�b�h�j��0�ɏ�����
-		ADD		CH, 1			; CH�i�V�����_�j��1���Z
-		CMP		CH, CYLS		; CH�i�V�����_�j��CYLS���r
-		JB		readloop		; CH < CYLS ��������readloop��
+		MOV		ES, AX			; ADD ES, 0x20 という命令が無いのでこうしている
+		ADD		CL, 1			; CL（セクタ）に1加算
+		CMP		CL, 18			; CL（セクタ）と18を比較
+		JBE		readloop		; CL <= 18 だったらreadloopへ
+		MOV		CL, 1			; CL（セクタ）を1に初期化
+		ADD		DH, 1			; DH（ヘッド）に1加算
+		CMP		DH, 2			; DH（ヘッド）と2を比較
+		JB		readloop		; DH < 2 だったらreadloopへ
+		MOV		DH, 0			; DH（ヘッド）を0に初期化
+		ADD		CH, 1			; CH（シリンダ）に1加算
+		CMP		CH, CYLS		; CH（シリンダ）とCYLSを比較
+		JB		readloop		; CH < CYLS だったらreadloopへ
 
-; �ǂݏI������̂�haribote.sys�����s
-		MOV		[0x0ff0], CH	; IPL���ǂ��܂œǂ񂾂̂�������
+; 読み終わったのでharibote.sysを実行
+		MOV		[0x0ff0], CH	; IPLがどこまで読んだのかをメモ
 		JMP		0xc200
 
 error:
@@ -87,25 +87,25 @@ error:
 
 putloop:
 		MOV		AL, [SI]
-		ADD		SI, 1			; SI��1�𑫂�
+		ADD		SI, 1			; SIに1を足す
 		CMP		AL, 0
 		JE		fin
-		MOV		AH, 0x0e		; �ꕶ���\���t�@���N�V����
-		MOV		BX, 15			; �J���[�R�[�h
-		INT		0x10			; �r�f�IBIOS�Ăяo��
+		MOV		AH, 0x0e		; 一文字表示ファンクション
+		MOV		BX, 15			; カラーコード
+		INT		0x10			; ビデオBIOS呼び出し
 		JMP		putloop
 
 fin:
-		HLT						; ��������܂�CPU���~
-		JMP		fin				; �������[�v
+		HLT						; 何かあるまでCPUを停止
+		JMP		fin				; 無限ループ
 
 msg:
-		DB		0x0a, 0x0a		; ���s��2��
+		DB		0x0a, 0x0a		; 改行を2つ
 		DB		"load error"
-		DB		0x0a			; ���s
+		DB		0x0a			; 改行
 		DB		0
 
-		RESB	0x7dfe-$		; 0x001fe�܂ł�0x00�Ŗ��߂閽��
+		RESB	0x7dfe-$		; 0x001feまでを0x00で埋める命令
 
 		DB		0x55, 0xaa
 

@@ -9,7 +9,7 @@ void HariMain(void)
 	
 	init_gdtidt();
 	init_pic();
-	// IDT/PIC‚Ì‰Šú‰»‚ªI‚í‚Á‚½‚Ì‚ÅCPU‚ÌŠ„ž‚Ý‹ÖŽ~‚ð‰ðœ
+	// IDT/PICã®åˆæœŸåŒ–ãŒçµ‚ã‚ã£ãŸã®ã§CPUã®å‰²è¾¼ã¿ç¦æ­¢ã‚’è§£é™¤
 	io_sti();
 	
 	init_palette();
@@ -24,9 +24,9 @@ void HariMain(void)
 	sprintf(s, "(%d, %d)", mx, my);
 	putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, COL8_FFFFFF, s);
 	
-	// 11111001 PIC1‚ÆƒL[ƒ{[ƒh(IRQ1)‚ð‹–‰Â
+	// 11111001 PIC1ã¨ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰(IRQ1)ã‚’è¨±å¯
 	io_out8(PIC0_IMR, 0xf9);
-	// 11101111 ƒ}ƒEƒX(IRQ12)‚ð‹–‰Â
+	// 11101111 ãƒžã‚¦ã‚¹(IRQ12)ã‚’è¨±å¯
 	io_out8(PIC1_IMR, 0xef);
 	
 	for (;;) {

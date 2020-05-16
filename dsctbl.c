@@ -6,7 +6,7 @@ void init_gdtidt(void)
 	struct GATE_DESCRIPTOR    *idt = (struct GATE_DESCRIPTOR    *) 0x0026f800;
 	int i;
 	
-	// GDT‚Ì‰Šú‰»
+	// GDTã®åˆæœŸåŒ–
 	for (i = 0; i < 8192; i++) {
 		set_segmdesc(gdt + i, 0, 0, 0);
 	}
@@ -14,13 +14,13 @@ void init_gdtidt(void)
 	set_segmdesc(gdt + 2, 0x00007fff, 0x00280000, 0x409a);
 	load_gdtr(0xffff, 0x00270000);
 	
-	// IDT‚Ì‰Šú‰»
+	// IDTã®åˆæœŸåŒ–
 	for (i = 0; i < 256; i++) {
 		set_gatedesc(idt + i, 0, 0, 0);
 	}
 	load_idtr(0x7ff, 0x0026f800);
 	
-	// IDT‚Ìİ’è
+	// IDTã®è¨­å®š
 	set_gatedesc(idt + 0x21, (int) asm_inthandler21, 2 * 8, AR_INTGATE32);
 	set_gatedesc(idt + 0x27, (int) asm_inthandler27, 2 * 8, AR_INTGATE32);
 	set_gatedesc(idt + 0x2c, (int) asm_inthandler2c, 2 * 8, AR_INTGATE32);
