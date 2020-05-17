@@ -23,7 +23,7 @@ void init_pic(void)
 	io_out8(PIC1_IMR,  0xff  ); // 11111111 全ての割り込みを受け付けない
 }
 
-struct KEYBUF keybuf;
+struct FIFO8 keyfifo;
 
 // PS/2キーボードからの割り込み
 void inthandler21(int *esp)
@@ -31,10 +31,7 @@ void inthandler21(int *esp)
 	unsigned char data;
 	io_out8(PIC0_OCW2, 0x61);	// IRQ-01受付完了をPICに通知
 	data = io_in8(PORT_KEYDAT);
-	if (keybuf.flag == 0) {
-		keybuf.data = data;
-		keybuf.flag = 1;
-	}
+	fifo8_put(&keyfifo, data);
 }
 
 // PS/2マウスからの割り込み
