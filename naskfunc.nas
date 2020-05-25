@@ -2,7 +2,7 @@
 ; TAB=4
 
 [FORMAT "WCOFF"]				; オブジェクトファイルを作るモード
-[INSTRSET "i486p"]				; 486の命令で使いたいという記述
+[INSTRSET "i486p"]				; 486の命令まで使いたいという記述
 [BITS 32]						; 32ビットモード用の機械語を作らせる
 [FILE "naskfunc.nas"]			; ソースファイル名情報
 
@@ -85,7 +85,7 @@ _load_gdtr:		; void load_gdtr(int limit, int addr);
 		LGDT	[ESP+6]
 		RET
 
-_load_idtr:		; void load_gdtr(int limit, int addr);
+_load_idtr:		; void load_idtr(int limit, int addr);
 		MOV		AX, [ESP+4]		; limit
 		MOV		[ESP+6], AX
 		LIDT	[ESP+6]
@@ -132,7 +132,7 @@ _asm_inthandler2c:
 		MOV		AX, SS
 		MOV		DS, AX
 		MOV		ES, AX
-		CALL	_inthandler21
+		CALL	_inthandler2c
 		POP		EAX
 		POPAD
 		POP		DS
