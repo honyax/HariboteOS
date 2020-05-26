@@ -1,17 +1,23 @@
 #include "bootpack.h"
 #include <stdio.h>
 
+struct MOUSE_DEC {
+	unsigned char buf[3];
+	unsigned char phase;
+};
+
 extern struct FIFO8 keyfifo;
 extern struct FIFO8 mousefifo;
-void enable_mouse(void);
+void enable_mouse(struct MOUSE_DEC *mdec);
 void init_keyboard(void);
+int mouse_decode(struct MOUSE_DEC *mdec, unsigned char dat);
 
 void HariMain(void)
 {
 	struct BOOTINFO *binfo = (struct BOOTINFO *) ADR_BOOTINFO;
 	char s[40], mcursor[256], keybuf[32], mousebuf[128];
 	int mx, my, i;
-	unsigned char mouse_dbuf[3], mouse_phase;
+	struct MOUSE_DEC mdec;
 	
 	init_gdtidt();
 	init_pic();
@@ -34,8 +40,7 @@ void HariMain(void)
 	sprintf(s, "(%d, %d)", mx, my);
 	putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, COL8_FFFFFF, s);
 
-	enable_mouse();
-	mouse_phase = 0; // マウスの0xfaを待っている段階へ
+	enable_mouse(&mdec);
 	
 	for (;;) {
 		io_cli();
@@ -51,34 +56,11 @@ void HariMain(void)
 			} else if (fifo8_status(&mousefifo) != 0) {
 				i = fifo8_get(&mousefifo);
 				io_sti();
-
-				switch (mouse_phase) {
-					case 0:
-						// マウスの0xfaを待っている段階
-						if (i == 0xfa) {
-							mouse_phase = 1;
-						}
-						break;
-					case 1:
-						// マウスの1バイト目を待っている段階
-						mouse_dbuf[0] = i;
-						mouse_phase = 2;
-						break;
-					case 2:
-						// マウスの2バイト目を待っている段階
-						mouse_dbuf[1] = i;
-						mouse_phase = 3;
-						break;
-					case 3:
-						// マウスの3バイト目を待っている段階
-						mouse_dbuf[2] = i;
-						mouse_phase = 1;
-
-						// データが3バイト揃ったので表示
-						sprintf(s, "%02X %02X %02X", mouse_dbuf[0], mouse_dbuf[1], mouse_dbuf[2]);
-						boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 32, 16, 32 + 8 * 8 - 1, 31);
-						putfonts8_asc(binfo->vram, binfo->scrnx, 32, 16, COL8_FFFFFF, s);
-						break;
+				if (mouse_decode(&mdec, i) != 0) {
+					// データが3バイト揃ったので表示
+					sprintf(s, "%02X %02X %02X", mdec.buf[0], mdec.buf[1], mdec.buf[2]);
+					boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 32, 16, 32 + 8 * 8 - 1, 31);
+					putfonts8_asc(binfo->vram, binfo->scrnx, 32, 16, COL8_FFFFFF, s);
 				}
 			}
 		}
@@ -114,11 +96,44 @@ void init_keyboard(void)
 #define KEYCMD_SENDTO_MOUSE		0xd4
 #define MOUSECMD_ENABLE			0xf4
 
-void enable_mouse(void)
+void enable_mouse(struct MOUSE_DEC *mdec)
 {
 	// マウス有効
 	wait_KBC_sendready();
 	io_out8(PORT_KEYCMD, KEYCMD_SENDTO_MOUSE);
 	wait_KBC_sendready();
 	io_out8(PORT_KEYDAT, MOUSECMD_ENABLE);
+	// うまくいくとACK(0xfa)が送信されてくる
+	mdec->phase = 0; // マウスの0xfaを待っている段階
+}
+
+int mouse_decode(struct MOUSE_DEC *mdec, unsigned char dat)
+{
+	switch (mdec->phase) {
+		case 0:
+			// マウスの0xfaを待っている段階
+			if (dat == 0xfa) {
+				mdec->phase = 1;
+			}
+			return 0;
+		case 1:
+			// マウスの1バイト目を待っている段階
+			mdec->buf[0] = dat;
+			mdec->phase = 2;
+			return 0;
+		case 2:
+			// マウスの2バイト目を待っている段階
+			mdec->buf[1] = dat;
+			mdec->phase = 3;
+			return 0;
+		case 3:
+			// マウスの3バイト目を待っている段階
+			mdec->buf[2] = dat;
+			mdec->phase = 1;
+
+			// データが3バイト揃ったので表示
+			return 1;
+	}
+	// ここに来ることはないはず
+	return -1;
 }
