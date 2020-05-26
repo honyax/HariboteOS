@@ -20,6 +20,11 @@ void HariMain(void)
 	char s[40], mcursor[256], keybuf[32], mousebuf[128];
 	int mx, my, i;
 	struct MOUSE_DEC mdec;
+
+	int xmin = 0;
+	int ymin = 0;
+	int xmax = binfo->scrnx - 16;
+	int ymax = binfo->scrny - 16;
 	
 	init_gdtidt();
 	init_pic();
@@ -39,7 +44,7 @@ void HariMain(void)
 	my = (binfo->scrny - 28 - 16) / 2;
 	init_mouse_cursor8(mcursor, COL8_008484);
 	putblock8_8(binfo->vram, binfo->scrnx, 16, 16, mx, my, mcursor, 16);
-	sprintf(s, "(%d, %d)", mx, my);
+	sprintf(s, "(%3d, %3d)", mx, my);
 	putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, COL8_FFFFFF, s);
 
 	enable_mouse(&mdec);
@@ -72,6 +77,20 @@ void HariMain(void)
 					}
 					boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 32, 16, 32 + 15 * 8 - 1, 31);
 					putfonts8_asc(binfo->vram, binfo->scrnx, 32, 16, COL8_FFFFFF, s);
+
+					// マウスカーソルの移動
+					boxfill8(binfo->vram, binfo->scrnx, COL8_008484, mx, my, mx + 15, my + 15);	// マウスを消す
+					mx += mdec.x;
+					my += mdec.y;
+					if (mx < xmin) { mx = xmin; }
+					if (my < ymin) { my = ymin; }
+					if (mx > xmax) { mx = xmax; }
+					if (my > ymax) { my = ymax; }
+
+					sprintf(s, "(%3d, %3d)", mx, my);
+					boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 0, 0, 79, 15);	// 前回の座標を消す
+					putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, COL8_FFFFFF, s);	// 座標を書く
+					putblock8_8(binfo->vram, binfo->scrnx, 16, 16, mx, my, mcursor, 16);	// マウス描画
 				}
 			}
 		}
