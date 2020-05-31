@@ -167,6 +167,7 @@ struct SHEET {
 
 struct SHTCTL {
 	unsigned char *vram;
+	unsigned char *map;
 	int xsize, ysize;
 	int top;
 	struct SHEET *sheets[MAX_SHEETS];
