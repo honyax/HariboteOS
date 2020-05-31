@@ -15,8 +15,8 @@ void HariMain(void)
 
 	int xmin = 0;
 	int ymin = 0;
-	int xmax = binfo->scrnx - 16;
-	int ymax = binfo->scrny - 16;
+	int xmax = binfo->scrnx - 1;
+	int ymax = binfo->scrny - 1;
 	
 	init_gdtidt();
 	init_pic();
