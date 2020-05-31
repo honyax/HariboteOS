@@ -89,7 +89,6 @@ void HariMain(void)
 					sheet_refresh(shtctl, sht_back, 32, 16, 32 + 15 * 8, 32);
 
 					// マウスカーソルの移動
-					boxfill8(binfo->vram, binfo->scrnx, COL8_008484, mx, my, mx + 15, my + 15);	// マウスを消す
 					mx += mdec.x;
 					my += mdec.y;
 					if (mx < xmin) { mx = xmin; }
