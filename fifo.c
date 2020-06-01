@@ -1,7 +1,7 @@
 #include "bootpack.h"
 
 // FIFOバッファの初期化
-void fifo8_init(struct FIFO8 *fifo, int size, unsigned char *buf) {
+void fifo32_init(struct FIFO32 *fifo, int size, int *buf) {
     fifo->size = size;
     fifo->buf = buf;
     fifo->free = size;
@@ -11,7 +11,7 @@ void fifo8_init(struct FIFO8 *fifo, int size, unsigned char *buf) {
 }
 
 // FIFOへデータを送り込んで蓄える
-int fifo8_put(struct FIFO8 *fifo, unsigned char data) {
+int fifo32_put(struct FIFO32 *fifo, int data) {
     if (fifo->free == 0) {
         fifo->flags |= FLAGS_OVERRUN;
         return -1;
@@ -26,7 +26,7 @@ int fifo8_put(struct FIFO8 *fifo, unsigned char data) {
 }
 
 // FIFOからデータを1つ取ってくる
-int fifo8_get(struct FIFO8 *fifo) {
+int fifo32_get(struct FIFO32 *fifo) {
     int data;
     if (fifo->free == fifo->size) {
         // バッファが空っぽの場合は、とりあえず-1を返す
@@ -42,6 +42,6 @@ int fifo8_get(struct FIFO8 *fifo) {
 }
 
 // どのくらいデータが溜まっているかを報告する
-int fifo8_status(struct FIFO8 *fifo) {
+int fifo32_status(struct FIFO32 *fifo) {
     return fifo->size - fifo->free;
 }
