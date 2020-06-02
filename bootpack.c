@@ -12,7 +12,6 @@ void HariMain(void)
 	int fifobuf[128];
 	struct TIMER *timer, *timer2, *timer3;
 	int mx, my, i;
-	int count = 0;
 	unsigned int memtotal;
 	struct MOUSE_DEC mdec;
 	struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
@@ -64,7 +63,7 @@ void HariMain(void)
 	sheet_setbuf(sht_win, buf_win, 160, 52, -1);	// 透明色なし
 	init_screen8(buf_back, binfo->scrnx, binfo->scrny);
 	init_mouse_cursor8(buf_mouse, 99);
-	make_window8(buf_win, 160, 52, "counter");
+	make_window8(buf_win, 160, 52, "window");
 	sheet_slide(sht_back, 0, 0);
 	mx = (binfo->scrnx - 16) / 2;
 	my = (binfo->scrny - 28 - 16) / 2;
@@ -80,11 +79,9 @@ void HariMain(void)
 	putfonts8_asc_sht(sht_back, 0, 32, COL8_FFFFFF, COL8_008484, s, 40);
 	
 	for (;;) {
-		count++;
-
 		io_cli();
 		if (fifo32_status(&fifo) == 0) {
-			io_sti();
+			io_stihlt();
 		} else {
 			i = fifo32_get(&fifo);
 			io_sti();
@@ -92,6 +89,9 @@ void HariMain(void)
 				// キーボードデータ
 				sprintf(s, "%02X", i - 256);
 				putfonts8_asc_sht(sht_back, 0, 16, COL8_FFFFFF, COL8_008484, s, 2);
+				if (i == 0x1e + 256) {
+					putfonts8_asc_sht(sht_win, 40, 28, COL8_000000, COL8_C6C6C6, "A", 1);
+				}
 			} else if (512 <= i && i < 768) {
 				// マウスデータ
 				if (mouse_decode(&mdec, i - 512) != 0) {
@@ -125,13 +125,10 @@ void HariMain(void)
 					case 10:
 						// 10秒タイマ
 						putfonts8_asc_sht(sht_back, 0, 64, COL8_FFFFFF, COL8_008484, "10[sec]", 7);
-						sprintf(s, "%010d", count);
-						putfonts8_asc_sht(sht_back, 40, 28, COL8_000000, COL8_C6C6C6, s, 10);
 						break;
 					case 3:
 						// 3秒タイマ
 						putfonts8_asc_sht(sht_back, 0, 80, COL8_FFFFFF, COL8_008484, "3[sec]", 6);
-						count = 0; // 測定開始
 						break;
 					case 1:
 						timer_init(timer3, &fifo, 0);	// 次は0を
