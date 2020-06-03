@@ -20,7 +20,7 @@ void HariMain(void)
 	struct FIFO32 fifo;
 	char s[40];
 	int fifobuf[128];
-	struct TIMER *timer, *timer2, *timer3, *timer_ts;
+	struct TIMER *timer, *timer2, *timer3;
 	int mx, my, i;
 	int cursor_x, cursor_c;
 	int task_b_esp;
@@ -67,9 +67,6 @@ void HariMain(void)
 	timer3 = timer_alloc();
 	timer_init(timer3, &fifo, 1);
 	timer_settime(timer3, 50);
-	timer_ts = timer_alloc();
-	timer_init(timer_ts, &fifo, 2);
-	timer_settime(timer_ts, 2);
 	
 	memtotal = memtest(0x00400000, 0xbfffffff);
 	memman_init(memman);
@@ -131,6 +128,7 @@ void HariMain(void)
 	tss_b.fs = 1 * 8;
 	tss_b.gs = 1 * 8;
 	*((int *) (task_b_esp + 4)) = (int) sht_back;
+	mt_init();
 	
 	for (;;) {
 		io_cli();
@@ -139,10 +137,7 @@ void HariMain(void)
 		} else {
 			i = fifo32_get(&fifo);
 			io_sti();
-			if (i == 2) {
-				farjmp(0, 4 * 8);
-				timer_settime(timer_ts, 2);
-			} else if (256 <= i && i < 512) {
+			if (256 <= i && i < 512) {
 				// キーボードデータ
 				sprintf(s, "%02X", i - 256);
 				putfonts8_asc_sht(sht_back, 0, 16, COL8_FFFFFF, COL8_008484, s, 2);
@@ -300,7 +295,7 @@ void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c)
 void task_b_main(struct SHEET *sht_back)
 {
 	struct FIFO32 fifo;
-	struct TIMER *timer_ts, *timer_put, *timer_1s;
+	struct TIMER *timer_put, *timer_1s;
 	int i;
 	int fifobuf[128];
 	int count = 0;
@@ -308,9 +303,6 @@ void task_b_main(struct SHEET *sht_back)
 	char s[12];
 
 	fifo32_init(&fifo, 128, fifobuf);
-	timer_ts = timer_alloc();
-	timer_init(timer_ts, &fifo, 2);
-	timer_settime(timer_ts, 2);
 	timer_put = timer_alloc();
 	timer_init(timer_put, &fifo, 1);
 	timer_settime(timer_put, 1);
@@ -330,9 +322,6 @@ void task_b_main(struct SHEET *sht_back)
 				sprintf(s, "%11d", count);
 				putfonts8_asc_sht(sht_back, 0, 144, COL8_FFFFFF, COL8_008484, s, 11);
 				timer_settime(timer_put, 1);
-			} else if (i == 2) {
-				farjmp(0, 3 * 8);
-				timer_settime(timer_ts, 2);
 			} else if (i == 100) {
 				sprintf(s, "%11d", count - count0);
 				putfonts8_asc_sht(sht_back, 0, 128, COL8_FFFFFF, COL8_008484, s, 11);
