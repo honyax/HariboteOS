@@ -224,6 +224,7 @@ struct TASK {
 	int sel, flags;				// selはGDT番号のこと
 	int level;
 	int priority;
+	struct FIFO32 fifo;
 	struct TSS32 tss;
 };
 struct TASKLEVEL {
