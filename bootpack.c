@@ -70,6 +70,7 @@ void HariMain(void)
 	buf_cons = (unsigned char *) memman_alloc_4k(memman, 256 * 165);
 	sheet_setbuf(sht_cons, buf_cons, 256, 165, -1);	// 透明色なし
 	make_window8(buf_cons, 256, 165, "console", 0);
+	make_textbox8(sht_cons, 8, 28, 240, 128, COL8_000000);
 	task_cons = task_alloc();
 	task_cons->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024 - 8;
 	task_cons->tss.eip = (int) &console_task;
