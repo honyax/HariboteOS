@@ -45,6 +45,7 @@ void HariMain(void)
     };	
 	int key_to = 0;
 	int key_shift = 0;
+	int key_leds = (binfo->leds >> 4) & 7;
 
 	int xmin = 0;
 	int ymin = 0;
@@ -151,6 +152,14 @@ void HariMain(void)
 					}
 				} else {
 					s[0] = 0;
+				}
+				if ('A' <= s[0] && s[0] <= 'Z') {
+					// 入力文字がアルファベット
+					if (((key_leds & 4) == 0 && key_shift == 0) ||
+							((key_leds & 4) != 0 && key_shift != 0)) {
+						// 大文字を小文字に変換
+						s[0] += 0x20;
+					}
 				}
 				if (s[0] != 0) {
 					// 通常文字
