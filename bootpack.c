@@ -427,6 +427,7 @@ void console_task(struct SHEET *sheet)
 	int cursor_y = 28;
 	int cursor_c = -1;
 	char s[2];
+	int x, y;
 
 	fifo32_init(&task->fifo, 128, fifobuf, task);
 	timer = timer_alloc();
@@ -479,14 +480,28 @@ void console_task(struct SHEET *sheet)
 					}
 				} else if (i == 10 + 256) {
 					// Enter
+					// カーソルをスペースで消す
+					putfonts8_asc_sht(sheet, cursor_x, cursor_y, COL8_FFFFFF, COL8_000000, " ", 1);
 					if (cursor_y < 28 + 112) {
-						// カーソルをスペースで消す
-						putfonts8_asc_sht(sheet, cursor_x, cursor_y, COL8_FFFFFF, COL8_000000, " ", 1);
+						// 次の行へ
 						cursor_y += 16;
-						// プロンプト表示
-						putfonts8_asc_sht(sheet, 8, cursor_y, COL8_FFFFFF, COL8_000000, ">", 1);
-						cursor_x = 16;
+					} else {
+						// スクロール
+						for (y = 28; y < 28 + 112; y++) {
+							for (x = 8; x < 8 + 240; x++) {
+								sheet->buf[x + y * sheet->bxsize] = sheet->buf[x + (y + 16) * sheet->bxsize];
+							}
+						}
+						for (y = 28 + 112; y < 28 + 128; y++) {
+							for (x = 8; x < 8 + 240; x++) {
+								sheet->buf[x + y * sheet->bxsize] = COL8_000000;
+							}
+						}
+						sheet_refresh(sheet, 8, 28, 8 + 240, 28 + 128);
 					}
+					// プロンプト表示
+					putfonts8_asc_sht(sheet, 8, cursor_y, COL8_FFFFFF, COL8_000000, ">", 1);
+					cursor_x = 16;
 				} else {
 					// 一般文字
 					if (cursor_x < 240) {
