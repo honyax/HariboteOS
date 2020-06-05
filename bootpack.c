@@ -2,6 +2,17 @@
 #include <stdio.h>
 #include <string.h>
 
+struct FILEINFO {
+	unsigned char name[8];
+	unsigned char ext[3];
+	unsigned char type;
+	char reserve[10];
+	unsigned short time;
+	unsigned short date;
+	unsigned short clustno;
+	unsigned int size;
+};
+
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act);
 void putfonts8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l);
 void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c);
@@ -411,6 +422,7 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 	char cmdline[30];
 	struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR;
 	int x, y;
+	struct FILEINFO *finfo = (struct FILEINFO *) (ADR_DISKIMG + 0x002600);
 
 	fifo32_init(&task->fifo, 128, fifobuf, task);
 	timer = timer_alloc();
@@ -486,6 +498,27 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 						}
 						sheet_refresh(sheet, 8, 28, 8 + 240, 28 + 128);
 						cursor_y = 28;
+					} else if (strcmp(cmdline, "dir") == 0) {
+						// dirコマンド
+						for (x = 0; x < 224; x++) {
+							if (finfo[x].name[0] == 0x00) {
+								break;
+							} else if (finfo[x].name[0] == 0xe5) {
+								continue;
+							}
+							if ((finfo[x].type & 0x18) == 0) {
+								sprintf(s, "filename.ext   %7d", finfo[x].size);
+								for (y = 0; y < 8; y++) {
+									s[y] = finfo[x].name[y];
+								}
+								for (y = 0; y < 3; y++) {
+									s[y + 9] = finfo[x].ext[y];
+								}
+								putfonts8_asc_sht(sheet, 8, cursor_y, COL8_FFFFFF, COL8_000000, s, 30);
+								cursor_y = cons_newline(cursor_y, sheet);
+							}
+						}
+						cursor_y = cons_newline(cursor_y, sheet);
 					} else if (cmdline[0] != 0) {
 						// コマンドではなく、さらに空行でもない
 						putfonts8_asc_sht(sheet, 8, cursor_y, COL8_FFFFFF, COL8_000000, "Bad command.", 12);
