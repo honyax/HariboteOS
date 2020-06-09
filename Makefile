@@ -51,19 +51,19 @@ bootpack.bim	: $(OBJS_BOOTPACK) Makefile
 bootpack.hrb	: bootpack.bim Makefile
 	$(BIM2HRB) bootpack.bim bootpack.hrb 0
 
-hlt.hrb	: hlt.nas Makefile
-	$(NASK) hlt.nas hlt.hrb hlt.lst
+hello.hrb	: hello.nas Makefile
+	$(NASK) hello.nas hello.hrb hello.lst
 
 honyaos.sys		: asmhead.bin bootpack.hrb Makefile
 	copy /B asmhead.bin+bootpack.hrb honyaos.sys
 
-honyaos.img : ipl10.bin honyaos.sys hlt.hrb Makefile
+honyaos.img : ipl10.bin honyaos.sys hello.hrb Makefile
 	$(EDIMG) imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:ipl10.bin len:512 from:0 to:0 \
 		copy from:honyaos.sys to:@: \
 		copy from:ipl10.nas to:@: \
 		copy from:make.bat to:@: \
-		copy from:hlt.hrb to:@: \
+		copy from:hello.hrb to:@: \
 		imgout:honyaos.img
 
 # 一般規則
