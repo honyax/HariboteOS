@@ -78,8 +78,11 @@ crack1.bim	: crack1.obj Makefile
 crack1.hrb	: crack1.bim Makefile
 	$(BIM2HRB) crack1.bim crack1.hrb 0
 
+crack2.hrb	: crack2.nas Makefile
+	$(NASK) crack2.nas crack2.hrb crack2.lst
+
 honyaos.img : ipl10.bin honyaos.sys Makefile \
-		hello.hrb hello2.hrb a.hrb hello3.hrb crack1.hrb
+		hello.hrb hello2.hrb a.hrb hello3.hrb crack1.hrb crack2.hrb
 	$(EDIMG) imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:ipl10.bin len:512 from:0 to:0 \
 		copy from:honyaos.sys to:@: \
@@ -90,6 +93,7 @@ honyaos.img : ipl10.bin honyaos.sys Makefile \
 		copy from:a.hrb to:@: \
 		copy from:hello3.hrb to:@: \
 		copy from:crack1.hrb to:@: \
+		copy from:crack2.hrb to:@: \
 		imgout:honyaos.img
 
 # 一般規則
