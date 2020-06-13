@@ -45,6 +45,7 @@ void HariMain(void)
 	int key_shift = 0;
 	int key_leds = (binfo->leds >> 4) & 7;
 	int keycmd_wait = -1;
+	struct CONSOLE *cons;
 
 	int xmin = 0;
 	int ymin = 0;
@@ -254,6 +255,16 @@ void HariMain(void)
 					key_leds ^= 1;
 					fifo32_put(&keycmd, KEYCMD_LED);
 					fifo32_put(&keycmd, key_leds);
+				}
+				if (i == 256 + 0x3b && key_shift != 0 && task_cons->tss.ss0 != 0) {
+					// Shift + F1
+					cons = (struct CONSOLE *) *((int *) 0x0fec);
+					cons_putstr0(cons, "\nBreak(key) :\n");
+					// 強制終了処理中にタスクが変わると困るから
+					io_cli();
+					task_cons->tss.eax = (int) &(task_cons->tss.esp0);
+					task_cons->tss.eip = (int) asm_end_app;
+					io_sti();
 				}
 				if (i == 256 + 0xfa) {
 					// キーボードがデータを無事に受け取った
