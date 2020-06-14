@@ -92,7 +92,6 @@ void sheet_refreshsub(struct SHTCTL *ctl, int vx0, int vy0, int vx1, int vy1, in
     int h, bx, by, vx, vy;
     int bx0, by0, bx1, by1;
     unsigned char *buf;
-    unsigned char c;
     unsigned char *vram = ctl->vram;
     unsigned char *map = ctl->map;
     unsigned char sid;

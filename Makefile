@@ -72,6 +72,12 @@ hello3.bim	: hello3.obj a_nask.obj Makefile
 hello3.hrb	: hello3.bim Makefile
 	$(BIM2HRB) hello3.bim hello3.hrb 0
 
+hello4.bim	: hello4.obj a_nask.obj Makefile
+	$(OBJ2BIM) @$(RULEFILE) out:hello4.bim map:hello4.map hello4.obj a_nask.obj
+
+hello4.hrb	: hello4.bim Makefile
+	$(BIM2HRB) hello4.bim hello4.hrb 0
+
 bug1.bim	: bug1.obj Makefile
 	$(OBJ2BIM) @$(RULEFILE) out:bug1.bim map:bug1.map bug1.obj a_nask.obj
 
@@ -91,7 +97,8 @@ bug3.hrb	: bug3.bim Makefile
 	$(BIM2HRB) bug3.bim bug3.hrb 0
 
 honyaos.img : ipl10.bin honyaos.sys Makefile \
-		hello.hrb hello2.hrb a.hrb hello3.hrb bug1.hrb bug2.hrb bug3.hrb
+		hello.hrb hello2.hrb a.hrb hello3.hrb bug1.hrb bug2.hrb bug3.hrb \
+		hello4.hrb
 	$(EDIMG) imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:ipl10.bin len:512 from:0 to:0 \
 		copy from:honyaos.sys to:@: \
@@ -104,6 +111,7 @@ honyaos.img : ipl10.bin honyaos.sys Makefile \
 		copy from:bug1.hrb to:@: \
 		copy from:bug2.hrb to:@: \
 		copy from:bug3.hrb to:@: \
+		copy from:hello4.hrb to:@: \
 		imgout:honyaos.img
 
 # 一般規則
