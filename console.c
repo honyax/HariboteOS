@@ -360,6 +360,22 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 			boxfill8(sht->buf, sht->bxsize, ebp, eax, ecx, esi, edi);
 			sheet_refresh(sht, eax, ecx, esi + 1, edi + 1);
 			break;
+		case 8:
+			memman_init((struct MEMMAN *) (ebx + ds_base));
+			// 16byte単位に
+			ecx &= 0xfffffff0;
+			memman_free((struct MEMMAN *) (ebx + ds_base), eax, ecx);
+			break;
+		case 9:
+			// 16byte単位に切り上げ
+			ecx = (ecx + 0x0f) & 0xfffffff0;
+			reg[7] = memman_alloc((struct MEMMAN *) (ebx + ds_base), ecx);
+			break;
+		case 10:
+			// 16byte単位に切り上げ
+			ecx = (ecx + 0x0f) & 0xfffffff0;
+			memman_free_4k((struct MEMMAN *) (ebx + ds_base), eax, ecx);
+			break;
 		default:
 			break;
 	}
