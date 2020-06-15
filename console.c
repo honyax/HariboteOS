@@ -398,6 +398,9 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 				sheet_refresh(sht, eax, ecx, esi + 1, edi + 1);
 			}
 			break;
+		case 14:
+			sheet_free((struct SHEET *) ebx);
+			break;
 		default:
 			break;
 	}
