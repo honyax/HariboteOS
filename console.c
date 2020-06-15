@@ -376,6 +376,11 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 			ecx = (ecx + 0x0f) & 0xfffffff0;
 			memman_free_4k((struct MEMMAN *) (ebx + ds_base), eax, ecx);
 			break;
+		case 11:
+			sht = (struct SHEET *) ebx;
+			sht->buf[sht->bxsize * edi + esi] = eax;
+			sheet_refresh(sht, esi, edi, esi + 1, edi + 1);
+			break;
 		default:
 			break;
 	}
