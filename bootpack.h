@@ -265,6 +265,7 @@ struct CONSOLE {
 	int cur_x;
 	int cur_y;
 	int cur_c;
+	struct TIMER *timer;
 };
 void console_task(struct SHEET *sheet, unsigned int memtotal);
 void cons_putchar(struct CONSOLE *cons, int chr, char move);
