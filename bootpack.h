@@ -173,6 +173,7 @@ struct SHEET {
 	int height;
 	int flags;
 	struct SHTCTL *ctl;
+	struct TASK *task;
 };
 
 struct SHTCTL {
