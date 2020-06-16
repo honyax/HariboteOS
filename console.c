@@ -441,12 +441,24 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 				} else if (i == 3) {
 					// カーソルOFF
 					cons->cur_c = -1;
-				} else if (256 <= i && i < 512) {
+				} else if (i >= 256) {
 					// キーボードデータ（タスクA経由）
 					reg[7] = i - 256;
 					return 0;
 				}
 			}
+			break;
+		case 16:
+			reg[7] = (int) timer_alloc();
+			break;
+		case 17:
+			timer_init((struct TIMER *) ebx, &task->fifo, eax + 256);
+			break;
+		case 18:
+			timer_settime((struct TIMER *) ebx, eax);
+			break;
+		case 19:
+			timer_free((struct TIMER *) ebx);
 			break;
 		default:
 			break;
