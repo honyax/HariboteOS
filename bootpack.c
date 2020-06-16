@@ -46,6 +46,8 @@ void HariMain(void)
 	int key_leds = (binfo->leds >> 4) & 7;
 	int keycmd_wait = -1;
 	struct CONSOLE *cons;
+	int j, x, y;
+	struct SHEET *sht;
 
 	int xmin = 0;
 	int ymin = 0;
@@ -297,8 +299,19 @@ void HariMain(void)
 					if (my > ymax) { my = ymax; }
 					sheet_slide(sht_mouse, mx, my);
 					if ((mdec.btn & 0x01) != 0) {
-						// 左クリックしていたら、sht_winを動かす
-						sheet_slide(sht_win, mx - 80, my - 8);
+						// 左クリック
+						// 上の下敷きから順番にマウスが指している下敷きを探す
+						for (j = shtctl->top - 1; j > 0; j--) {
+							sht = shtctl->sheets[j];
+							x = mx - sht->vx0;
+							y = my - sht->vy0;
+							if (0 <= x && x < sht->bxsize && 0 <= y && y < sht->bysize) {
+								if (sht->buf[y * sht->bxsize + x] != sht->col_inv) {
+									sheet_updown(sht, shtctl->top - 1);
+									break;
+								}
+							}
+						}
 					}
 				}
 			} else if (i <= 1) {
