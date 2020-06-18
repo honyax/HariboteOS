@@ -22,7 +22,7 @@ void HariMain(void)
 	struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
 	unsigned char *buf_back, buf_mouse[256], *buf_win, *buf_cons[2];
 	struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_cons[2];
-	struct TASK *task_a, *task_cons[2];
+	struct TASK *task_a, *task_cons[2], *task;
 	struct TIMER *timer;
 	static char keytable0[0x80] = {
 		0,   0,   '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', 0,   0,
@@ -47,7 +47,6 @@ void HariMain(void)
 	int key_shift = 0;
 	int key_leds = (binfo->leds >> 4) & 7;
 	int keycmd_wait = -1;
-	struct CONSOLE *cons;
 	int j, x, y;
 	int mmx = -1, mmy = -1;
 	struct SHEET *sht = 0;
@@ -266,15 +265,17 @@ void HariMain(void)
 					fifo32_put(&keycmd, KEYCMD_LED);
 					fifo32_put(&keycmd, key_leds);
 				}
-				if (i == 256 + 0x3b && key_shift != 0 && task_cons[0]->tss.ss0 != 0) {
-					// Shift + F1
-					cons = (struct CONSOLE *) *((int *) 0x0fec);
-					cons_putstr0(cons, "\nBreak(key) :\n");
-					// 強制終了処理中にタスクが変わると困るから
-					io_cli();
-					task_cons[0]->tss.eax = (int) &(task_cons[0]->tss.esp0);
-					task_cons[0]->tss.eip = (int) asm_end_app;
-					io_sti();
+				if (i == 256 + 0x3b && key_shift != 0) {
+					task = key_win->task;
+					if (task != 0 && task->tss.ss0 != 0) {
+						// Shift + F1
+						cons_putstr0(task->cons, "\nBreak(key) :\n");
+						// 強制終了処理中にタスクが変わると困るから
+						io_cli();
+						task->tss.eax = (int) &(task->tss.esp0);
+						task->tss.eip = (int) asm_end_app;
+						io_sti();
+					}
 				}
 				if (i == 256 + 0x57) {
 					// F11
@@ -331,12 +332,12 @@ void HariMain(void)
 											// 「×」ボタンクリック
 											if ((sht->flags & 0x10) != 0) {
 												// アプリが作ったウィンドウか？
-												cons = (struct CONSOLE *) *((int *) 0x0fec);
-												cons_putstr0(cons, "\nBreak(mouse) :\n");
+												task = sht->task;
+												cons_putstr0(task->cons, "\nBreak(mouse) :\n");
 												// 強制終了処理中にタスクが変わると困るから
 												io_cli();
-												task_cons[0]->tss.eax = (int) &(task_cons[0]->tss.esp0);
-												task_cons[0]->tss.eip = (int) asm_end_app;
+												task->tss.eax = (int) &(task->tss.esp0);
+												task->tss.eip = (int) asm_end_app;
 												io_sti();
 											}
 										}
