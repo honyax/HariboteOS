@@ -36,6 +36,18 @@ void asm_hrb_api(void);
 void start_app(int eip, int cs, int esp, int ds, int *tss_esp0);
 void asm_end_app(void);
 
+// fifo.c
+struct FIFO32 {
+	int *buf;
+	int p, q, size, free, flags;
+	struct TASK *task;
+};
+void fifo32_init(struct FIFO32 *fifo, int size, int *buf, struct TASK *task);
+int fifo32_put(struct FIFO32 *fifo, int data);
+int fifo32_get(struct FIFO32 *fifo);
+int fifo32_status(struct FIFO32 *fifo);
+#define FLAGS_OVERRUN		0x0001
+
 // graphic.c
 #define COL8_000000		0
 #define COL8_FF0000		1
@@ -85,6 +97,7 @@ void set_gatedesc(struct GATE_DESCRIPTOR *gd, int offset, int selector, int ar);
 #define LIMIT_BOTPAK	0x0007ffff
 #define AR_DATA32_RW	0x4092
 #define AR_CODE32_ER	0x409a
+#define AR_LDT			0x0082
 #define AR_TSS32		0x0089
 #define AR_INTGATE32	0x008e
 
@@ -102,18 +115,6 @@ void init_pic(void);
 #define PIC1_ICW2		0x00a1
 #define PIC1_ICW3		0x00a1
 #define PIC1_ICW4		0x00a1
-
-// fifo.c
-struct FIFO32 {
-	int *buf;
-	int p, q, size, free, flags;
-	struct TASK *task;
-};
-void fifo32_init(struct FIFO32 *fifo, int size, int *buf, struct TASK *task);
-int fifo32_put(struct FIFO32 *fifo, int data);
-int fifo32_get(struct FIFO32 *fifo);
-int fifo32_status(struct FIFO32 *fifo);
-#define FLAGS_OVERRUN		0x0001
 
 // keyboard.c
 void inthandler21(int *esp);
@@ -235,6 +236,7 @@ struct TASK {
 	int priority;
 	struct FIFO32 fifo;
 	struct TSS32 tss;
+	struct SEGMENT_DESCRIPTOR ldt[2];
 	struct CONSOLE *cons;
 	int ds_base;
 	int cons_stack;
