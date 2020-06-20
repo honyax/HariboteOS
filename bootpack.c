@@ -52,6 +52,7 @@ void HariMain(void)
 	int mmx = -1, mmy = -1, mmx2 = 0;
 	struct SHEET *sht = 0;
 	struct SHEET *key_win;
+	struct SHEET *sht2;
 
 	int xmin = 0;
 	int ymin = 0;
@@ -303,6 +304,11 @@ void HariMain(void)
 											} else {
 												// コンソール
 												task = sht->task;
+												// とりあえず非表示にしておく
+												sheet_updown(sht, -1);
+												keywin_off(key_win);
+												key_win = shtctl->sheets[shtctl->top - 1];
+												keywin_on(key_win);
 												io_cli();
 												fifo32_put(&task->fifo, 4);
 												io_sti();
@@ -337,6 +343,11 @@ void HariMain(void)
 				close_console(shtctl->sheets0 + (i - 768));
 			} else if (1024 <= i && i < 2024) {
 				close_constask(taskctl->tasks0 + (i - 1024));
+			} else if (2024 <= i && i < 2280) {
+				// コンソールだけを閉じる
+				sht2 = shtctl->sheets0 + (i - 2024);
+				memman_free_4k(memman, (int) sht2->buf, 256 * 165);
+				sheet_free(sht2);
 			}
 		}
 	}
