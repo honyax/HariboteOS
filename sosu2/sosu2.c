@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "apilib.h"
 
-#define MAX     1000
+#define MAX     10000
 
 void HariMain(void)
 {
