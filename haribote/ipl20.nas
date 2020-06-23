@@ -1,7 +1,7 @@
 ; honyaos-ipl
 ; TAB=4
 
-CYLS	EQU		10				; ‚Ç‚±‚Ü‚Å“Ç‚Ýž‚Þ‚©
+CYLS	EQU		20				; ‚Ç‚±‚Ü‚Å“Ç‚Ýž‚Þ‚©
 
 		ORG		0x7c00			; 0x7c00‚ÉƒvƒƒOƒ‰ƒ€‚ð“Ç‚Ýž‚Þ
 

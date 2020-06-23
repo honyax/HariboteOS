@@ -22,16 +22,16 @@ DEL      = del
 #COPY     = cp
 #DEL      = rm
 
-# ƒfƒtƒHƒ‹ƒg“®ì
+# ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå‹•ä½œ
 
 default:
-	$(MAKE) ipl10.bin
+	$(MAKE) ipl20.bin
 	$(MAKE) honyaos.sys
 
-# ƒtƒ@ƒCƒ‹¶¬‹K‘¥
+# ãƒ•ã‚¡ã‚¤ãƒ«ç”Ÿæˆè¦å‰‡
 
-ipl10.bin : ipl10.nas Makefile
-	$(NASK) ipl10.nas ipl10.bin ipl10.lst
+ipl20.bin : ipl20.nas Makefile
+	$(NASK) ipl20.nas ipl20.bin ipl20.lst
 
 asmhead.bin : asmhead.nas Makefile
 	$(NASK) asmhead.nas asmhead.bin asmhead.lst
@@ -53,7 +53,7 @@ bootpack.hrb	: bootpack.bim Makefile
 honyaos.sys		: asmhead.bin bootpack.hrb Makefile
 	copy /B asmhead.bin+bootpack.hrb honyaos.sys
 
-# ˆê”Ê‹K‘¥
+# ä¸€èˆ¬è¦å‰‡
 
 %.gas : %.c bootpack.h Makefile
 	$(CC1) -o $*.gas $*.c
@@ -64,7 +64,7 @@ honyaos.sys		: asmhead.bin bootpack.hrb Makefile
 %.obj : %.nas Makefile
 	$(NASK) $*.nas $*.obj $*.lst
 
-# ƒRƒ}ƒ“ƒh
+# ã‚³ãƒãƒ³ãƒ‰
 
 clean :
 	-$(DEL) asmhead.bin
@@ -77,5 +77,5 @@ clean :
 
 src_only :
 	$(MAKE) clean
-	-$(DEL) ipl10.bin
+	-$(DEL) ipl20.bin
 	-$(DEL) honyaos.sys
