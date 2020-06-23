@@ -243,7 +243,8 @@ struct TASK {
 	struct FILEHANDLE *fhandle;
 	int *fat;
 	char *cmdline;
-	char langmode;
+	unsigned char langmode;
+	unsigned char langbyte1;
 };
 struct TASKLEVEL {
 	int running;	// 動作しているタスクの数
