@@ -56,7 +56,7 @@ void task_switchsub(void)
         }
     }
     taskctl->now_lv = i;
-    taskctl->lv_charge = 0;
+    taskctl->lv_change = 0;
 }
 
 void task_idle(void)
@@ -154,7 +154,7 @@ void task_run(struct TASK *task, int level, int priority)
         task_add(task);
     }
 
-    taskctl->lv_charge = 1; // 次回タスクスイッチのときにレベルを見直す
+    taskctl->lv_change = 1; // 次回タスクスイッチのときにレベルを見直す
 }
 
 void task_sleep(struct TASK *task)
@@ -182,7 +182,7 @@ void task_switch(void)
     if (tl->now == tl->running) {
         tl->now = 0;
     }
-    if (taskctl->lv_charge != 0) {
+    if (taskctl->lv_change != 0) {
         task_switchsub();
         tl = &taskctl->level[taskctl->now_lv];
     }
