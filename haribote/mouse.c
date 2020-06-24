@@ -13,6 +13,9 @@ void inthandler2c(int *esp)
 	fifo32_put(mousefifo, data + mousedata0);
 }
 
+#define KEYCMD_SENDTO_MOUSE		0xd4
+#define MOUSECMD_ENABLE			0xf4
+
 void enable_mouse(struct FIFO32 *fifo, int data0, struct MOUSE_DEC *mdec)
 {
 	// 書き込み先のFIFOバッファを記憶

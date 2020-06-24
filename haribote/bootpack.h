@@ -46,7 +46,6 @@ void fifo32_init(struct FIFO32 *fifo, int size, int *buf, struct TASK *task);
 int fifo32_put(struct FIFO32 *fifo, int data);
 int fifo32_get(struct FIFO32 *fifo);
 int fifo32_status(struct FIFO32 *fifo);
-#define FLAGS_OVERRUN		0x0001
 
 // graphic.c
 #define COL8_000000		0
@@ -121,11 +120,7 @@ void inthandler21(int *esp);
 void wait_KBC_sendready(void);
 void init_keyboard(struct FIFO32 *fifo, int data0);
 #define PORT_KEYDAT				0x0060
-#define PORT_KEYSTA				0x0064
 #define PORT_KEYCMD				0x0064
-#define KEYSTA_SEND_NOTREADY	0x02
-#define KEYCMD_WRITE_MODE		0x60
-#define KBC_MODE				0x47
 
 // mouse.c
 struct MOUSE_DEC {
@@ -137,8 +132,6 @@ struct MOUSE_DEC {
 void inthandler2c(int *esp);
 void enable_mouse(struct FIFO32 *fifo, int data0, struct MOUSE_DEC *mdec);
 int mouse_decode(struct MOUSE_DEC *mdec, unsigned char dat);
-#define KEYCMD_SENDTO_MOUSE		0xd4
-#define MOUSECMD_ENABLE			0xf4
 
 // memory.c
 #define MEMMAN_FREES		4090		// これで約32KB
@@ -319,6 +312,11 @@ struct FILEINFO {
 void file_readfat(int *fat, unsigned char *img);
 void file_loadfile(int clustno, int size, char *buf, int *fat, char *img);
 struct FILEINFO *file_search(char *name, struct FILEINFO *finfo, int max);
+char *file_loadfile2(int clustno, int *psize, int *fat);
+
+// tek.c
+int tek_getsize(unsigned char *p);
+int tek_decomp(unsigned char *p, char *q, int size);
 
 // bootpack.c
 struct TASK *open_constask(struct SHEET *sht, unsigned int memtotal);
