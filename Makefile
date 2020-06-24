@@ -23,8 +23,8 @@ honyaos.img : haribote/ipl20.bin haribote/honyaos.sys Makefile \
 		lines/lines.hrb walk/walk.hrb noodle/noodle.hrb \
 		beepdown/beepdown.hrb color/color.hrb color2/color2.hrb \
 		sosu/sosu.hrb sosu2/sosu2.hrb sosu3/sosu3.hrb \
-		typeipl/typeipl.hrb type/type.hrb iroha/iroha.hrb \
-		chklang/chklang.hrb
+		type/type.hrb iroha/iroha.hrb chklang/chklang.hrb \
+		notrec/notrec.hrb
 	$(EDIMG) imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:haribote/ipl20.bin len:512 from:0 to:0 \
 		copy from:haribote/honyaos.sys to:@: \
@@ -49,11 +49,11 @@ honyaos.img : haribote/ipl20.bin haribote/honyaos.sys Makefile \
 		copy from:sosu/sosu.hrb to:@: \
 		copy from:sosu2/sosu2.hrb to:@: \
 		copy from:sosu3/sosu3.hrb to:@: \
-		copy from:typeipl/typeipl.hrb to:@: \
 		copy from:type/type.hrb to:@: \
 		copy from:iroha/iroha.hrb to:@: \
 		copy from:chklang/chklang.hrb to:@: \
 		copy from:euc.txt to:@: \
+		copy from:notrec/notrec.hrb to:@: \
 		copy from:nihongo/nihongo.fnt to:@: \
 		imgout:honyaos.img
 
@@ -86,10 +86,10 @@ full :
 	$(MAKE) -C sosu
 	$(MAKE) -C sosu2
 	$(MAKE) -C sosu3
-	$(MAKE) -C typeipl
 	$(MAKE) -C type
 	$(MAKE) -C iroha
 	$(MAKE) -C chklang
+	$(MAKE) -C notrec
 	$(MAKE) honyaos.img
 
 run_full :
@@ -130,10 +130,10 @@ clean_full :
 	$(MAKE) -C sosu			clean
 	$(MAKE) -C sosu2		clean
 	$(MAKE) -C sosu3		clean
-	$(MAKE) -C typeipl		clean
 	$(MAKE) -C type			clean
 	$(MAKE) -C iroha		clean
 	$(MAKE) -C chklang		clean
+	$(MAKE) -C notrec		clean
 
 src_only_full :
 	$(MAKE) -C haribote		src_only
@@ -157,10 +157,10 @@ src_only_full :
 	$(MAKE) -C sosu			src_only
 	$(MAKE) -C sosu2		src_only
 	$(MAKE) -C sosu3		src_only
-	$(MAKE) -C typeipl		src_only
 	$(MAKE) -C type			src_only
 	$(MAKE) -C iroha		src_only
 	$(MAKE) -C chklang		src_only
+	$(MAKE) -C notrec		src_only
 	-$(DEL) haribote.img
 
 refresh :
