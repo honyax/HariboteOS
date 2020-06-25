@@ -25,13 +25,13 @@ DEL      = del
 # デフォルト動作
 
 default:
-	$(MAKE) ipl20.bin
+	$(MAKE) ipl09.bin
 	$(MAKE) honyaos.sys
 
 # ファイル生成規則
 
-ipl20.bin : ipl20.nas Makefile
-	$(NASK) ipl20.nas ipl20.bin ipl20.lst
+ipl09.bin : ipl09.nas Makefile
+	$(NASK) ipl09.nas ipl09.bin ipl09.lst
 
 asmhead.bin : asmhead.nas Makefile
 	$(NASK) asmhead.nas asmhead.bin asmhead.lst
@@ -77,5 +77,5 @@ clean :
 
 src_only :
 	$(MAKE) clean
-	-$(DEL) ipl20.bin
+	-$(DEL) ipl09.bin
 	-$(DEL) honyaos.sys

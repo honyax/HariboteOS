@@ -16,7 +16,7 @@ default :
 
 # ファイル生成規則
 
-honyaos.img : haribote/ipl20.bin haribote/honyaos.sys Makefile \
+honyaos.img : haribote/ipl09.bin haribote/honyaos.sys Makefile \
 		a/a.hrb hello3/hello3.hrb hello4/hello4.hrb hello5/hello5.hrb \
 		winhelo/winhelo.hrb winhelo2/winhelo2.hrb winhelo3/winhelo3.hrb \
 		star1/star1.hrb stars/stars.hrb stars2/stars2.hrb \
@@ -27,9 +27,9 @@ honyaos.img : haribote/ipl20.bin haribote/honyaos.sys Makefile \
 		notrec/notrec.hrb bball/bball.hrb invader/invader.hrb \
 		calc/calc.hrb tview/tview.hrb mmlplay/mmlplay.hrb gview/gview.hrb
 	$(EDIMG) imgin:../z_tools/fdimg0at.tek \
-		wbinimg src:haribote/ipl20.bin len:512 from:0 to:0 \
+		wbinimg src:haribote/ipl09.bin len:512 from:0 to:0 \
 		copy from:haribote/honyaos.sys to:@: \
-		copy from:haribote/ipl20.nas to:@: \
+		copy from:haribote/ipl09.nas to:@: \
 		copy from:make.bat to:@: \
 		copy from:a/a.hrb to:@: \
 		copy from:hello3/hello3.hrb to:@: \
